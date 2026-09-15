@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklists — Aeromodelismo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1B1E22;
+    --panel: #23272C;
+    --panel-2: #2B3036;
+    --line: #3A4048;
+    --line-soft: #2F343A;
+    --text: #EDEAE3;
+    --text-dim: #9AA1A9;
+    --yellow: #E8B33D;
+    --yellow-dim: #7A6530;
+    --blue: #6E93A6;
+    --green: #7FA46A;
+    --danger: #C25B4A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:22px 16px 60px;
+  }
+
+  /* header */
+  .rivet-header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:2px solid var(--line);
+    padding-bottom:14px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .rivet-header h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:0.3px;
+    margin:0;
+    color:var(--text);
+  }
+  .rivet-header .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--yellow);
+    border:1px solid var(--yellow-dim);
+    padding:3px 8px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+
+  /* tabs */
+  .tabs{
+    display:flex;
+    gap:2px;
+    margin-bottom:18px;
+    background:var(--panel-2);
+    border-radius:6px;
+    padding:4px;
+  }
+  .tab-btn{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    font-family:'Oswald', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:0.4px;
+    padding:10px 8px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .tab-btn.active{
+    background:var(--panel);
+    color:var(--yellow);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .tab-btn:hover:not(.active){ color:var(--text); }
+
+  /* progress gauge */
+  .gauge{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:20px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:12px 14px;
+  }
+  .gauge-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
+  .gauge-bar-track{
+    flex:1;
+    height:8px;
+    background:var(--panel-2);
+    border-radius:4px;
+    overflow:hidden;
+    border:1px solid var(--line-soft);
+  }
+  .gauge-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--yellow-dim), var(--yellow));
+    border-radius:4px;
+    transition:width .25s ease;
+    width:0%;
+  }
+  .gauge-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--yellow);
+    white-space:nowrap;
+  }
+
+  /* category panel */
+  .category{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .category-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 14px;
+    cursor:pointer;
+    user-select:none;
+    border-bottom:1px solid transparent;
+  }
+  .category.open .category-head{
+    border-bottom-color:var(--line-soft);
+  }
+  .category-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .category-title h2{
+    font-family:'Oswald', sans-serif;
+    font-weight:500;
+    font-size:15px;
+    letter-spacing:0.3px;
+    margin:0;
+    color:var(--text);
+    cursor:text;
+  }
+  .cat-name-input{
+    font-family:'Oswald', sans-serif;
+    font-weight:500;
+    font-size:15px;
+    letter-spacing:0.3px;
+    margin:0;
+    color:var(--text);
+    background:var(--panel-2);
+    border:1px solid var(--yellow-dim);
+    border-radius:4px;
+    padding:4px 8px;
+    outline:none;
+    min-width:140px;
+    width:100%;
+    max-width:360px;
+  }
+  .cat-actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-shrink:0;
+  }
+  .category-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  .chevron{
+    color:var(--text-dim);
+    font-size:12px;
+    transition:transform .2s ease;
+  }
+  .category.open .chevron{ transform:rotate(90deg); }
+
+  .category-del, .category-edit{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:14px;
+    cursor:pointer;
+    padding:2px 6px;
+    line-height:1;
+    opacity:0.4;
+    transition:opacity .15s ease, color .15s ease;
+  }
+  .category-head:hover .category-del,
+  .category-head:hover .category-edit{ opacity:1; }
+  .category-del:hover{ color:var(--danger); }
+  .category-edit:hover{ color:var(--yellow); }
+
+  .category-body{
+    display:none;
+    padding:4px 6px 12px;
+  }
+  .category.open .category-body{ display:block; }
+
+  /* items */
+  .item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:8px 8px;
+    border-radius:4px;
+  }
+  .item:hover{ background:var(--panel-2); }
+
+  .checkbox{
+    flex-shrink:0;
+    width:19px;
+    height:19px;
+    margin-top:1px;
+    border:1.5px solid var(--text-dim);
+    border-radius:3px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    transition:background .12s ease, border-color .12s ease;
+  }
+  .checkbox.checked{
+    background:var(--green);
+    border-color:var(--green);
+  }
+  .checkbox svg{
+    width:12px;
+    height:12px;
+    opacity:0;
+    transition:opacity .1s ease;
+  }
+  .checkbox.checked svg{ opacity:1; }
+
+  .item-text{
+    flex:1;
+    font-size:14px;
+    line-height:1.4;
+    color:var(--text);
+    cursor:text;
+    padding-top:1px;
+  }
+  .item.checked .item-text{
+    color:var(--text-dim);
+    text-decoration:line-through;
+    text-decoration-color:var(--line);
+  }
+  .item-text-input{
+    flex:1;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    line-height:1.4;
+    color:var(--text);
+    background:var(--panel-2);
+    border:1px solid var(--yellow-dim);
+    border-radius:4px;
+    padding:4px 8px;
+    outline:none;
+    min-width:0;
+  }
+  .item.checked .item-text-input{
+    color:var(--text);
+    text-decoration:none;
+  }
+  .item-actions{
+    display:flex;
+    align-items:center;
+    gap:2px;
+    flex-shrink:0;
+  }
+
+  .item-del, .item-edit{
+    flex-shrink:0;
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:15px;
+    cursor:pointer;
+    padding:0 4px;
+    opacity:0.35;
+    transition:opacity .15s ease, color .15s ease;
+  }
+  .item:hover .item-del,
+  .item:hover .item-edit{ opacity:1; }
+  .item-del:hover{ color:var(--danger); }
+  .item-edit:hover{ color:var(--yellow); }
+
+  /* add item row */
+  .add-row{
+    display:flex;
+    gap:8px;
+    padding:8px 8px 4px;
+    margin-top:2px;
+    border-top:1px dashed var(--line-soft);
+  }
+  .add-row input{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px;
+    padding:8px 10px;
+    border-radius:4px;
+    outline:none;
+  }
+  .add-row input::placeholder{ color:var(--text-dim); }
+  .add-row input:focus{ border-color:var(--yellow-dim); }
+  .add-row button{
+    background:transparent;
+    border:1px solid var(--yellow-dim);
+    color:var(--yellow);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:0 14px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .add-row button:hover{ background:rgba(232,179,61,0.1); }
+
+  /* add category */
+  .add-category{
+    display:flex;
+    gap:8px;
+    margin-top:6px;
+  }
+  .add-category input{
+    flex:1;
+    background:var(--panel);
+    border:1px dashed var(--line);
+    color:var(--text);
+    font-family:'Oswald', sans-serif;
+    font-size:14px;
+    padding:10px 12px;
+    border-radius:6px;
+    outline:none;
+  }
+  .add-category input::placeholder{ color:var(--text-dim); }
+  .add-category button{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:0 16px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .add-category button:hover{ border-color:var(--yellow-dim); color:var(--yellow); }
+
+  .reset-row{
+    text-align:center;
+    margin-top:14px;
+  }
+  .reset-row button{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    cursor:pointer;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  .reset-row button:hover{ color:var(--danger); }
+
+  .save-status{
+    text-align:right;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    margin:-10px 0 14px;
+    min-height:14px;
+  }
+  .save-status.ok{ color:var(--green); }
+  .save-status.err{ color:var(--danger); }
+
+  .save-banner{
+    background:rgba(194,91,74,0.12);
+    border:1px solid var(--danger);
+    color:var(--text);
+    font-size:13px;
+    line-height:1.5;
+    border-radius:6px;
+    padding:12px 14px;
+    margin-bottom:16px;
+  }
+  .save-banner strong{ color:var(--danger); }
+
+  .backup-row{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-top:22px;
+  }
+  .backup-row button, .import-label{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    cursor:pointer;
+    padding:6px 12px;
+    border-radius:4px;
+  }
+  .backup-row button:hover, .import-label:hover{
+    color:var(--yellow);
+    border-color:var(--yellow-dim);
+  }
+
+  .load-msg{
+    text-align:center;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:40px 0;
+  }
+
+  @media (max-width:420px){
+    .rivet-header h1{ font-size:22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="rivet-header">
+    <h1>Checklists de aeromodelismo</h1>
+    <span class="tag">RC · glow / gasolina</span>
+  </div>
+
+  <div class="save-status" id="save-status"></div>
+  <div class="save-banner" id="save-banner" style="display:none;"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="taller">Taller</button>
+    <button class="tab-btn" data-tab="caja">Caja de vuelo</button>
+  </div>
+
+  <div class="gauge">
+    <span class="gauge-label" id="gauge-label">Taller</span>
+    <div class="gauge-bar-track"><div class="gauge-bar-fill" id="gauge-fill"></div></div>
+    <span class="gauge-count" id="gauge-count">0/0</span>
+  </div>
+
+  <div id="categories-container">
+    <div class="load-msg">Cargando checklist…</div>
+  </div>
+
+  <div class="add-category">
+    <input type="text" id="new-category-input" placeholder="Nueva categoría…" autocomplete="off">
+    <button type="button" id="add-category-btn">+ categoría</button>
+  </div>
+
+  <div class="backup-row">
+    <button id="export-btn">↓ exportar copia (.json)</button>
+    <label class="import-label" for="import-input">↑ importar copia</label>
+    <input type="file" id="import-input" accept="application/json" style="display:none;">
+  </div>
+
+  <div class="reset-row">
+    <button id="reset-btn">Restaurar checklist original de esta pestaña</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'aeromodelismo-checklist-v2';
+const LEGACY_KEY_PREFIX = 'aeromodelismo-checklist:';
+
+const DEFAULT_DATA = {
+  taller: [
+    { name: 'Corte y modelado', items: [
+      'Cutter / exacto (varios tamaños de hoja, incluyendo hojas curvas para balsa)',
+      'Sierra caladora (jigsaw)',
+      'Sierra de mesa pequeña ("table saw" mini) para listones',
+      'Segueta / sierra de calar manual',
+      'Lijadora de banda o de disco',
+      'Bloques de lijar de distintos tamaños y granos (80, 150, 220, 400)',
+      'Regla de acero y escuadras (cortes rectos precisos)',
+      'Compás y transportador',
+      'Cuchilla circular / roller cutter (para telas tipo Solartex / Oratex)'
+    ]},
+    { name: 'Adhesivos y consumibles', items: [
+      'CA (cianoacrilato) en viscosidad fina, media y gruesa',
+      'Activador / kicker para CA',
+      'Epóxico 5 min y 30 min',
+      'Pegamento tipo carpintero (Titebond) para balsa',
+      'Cinta de fibra de vidrio y resina (refuerzos estructurales)',
+      'Film termoencogible (Monokote / Oratex) + plancha térmica y sellador',
+      'Masking tape de precisión'
+    ]},
+    { name: 'Medición y alineación', items: [
+      'Calibrador digital (pie de rey)',
+      'Nivel de burbuja pequeño',
+      'Medidor de ángulo de incidencia (incidence meter) de ala/estabilizador',
+      'Balancín de centro de gravedad (CG) — de puntas o electrónico',
+      'Balanza digital (peso de avión y componentes)',
+      'Regla larga y escuadra de carpintero',
+      'Tacómetro óptico (RPM de motor)'
+    ]},
+    { name: 'Motor y sistema de combustible (glow / gasolina)', items: [
+      'Llave de bujía glow',
+      'Probador / calentador de bujías glow',
+      'Llave de arranque eléctrico (starter) + batería 12V dedicada',
+      'Bomba de combustible manual o eléctrica',
+      'Embudo con filtro para combustible',
+      'Juego de llaves Allen/hex y destornilladores de precisión (métrico y pulgadas)',
+      'Balanceador de hélices (prop balancer)',
+      'Extractor de hélice y llave de tuerca de hélice',
+      'Interruptor/killswitch de seguridad para banco de pruebas',
+      'Multímetro'
+    ]},
+    { name: 'Electrónica y radio', items: [
+      'Servo tester',
+      'Cargador de LiPo/NiMH balanceado + bolsa de seguridad LiPo',
+      'Voltímetro / checker de LiPo por celda',
+      'Estación de soldadura',
+      'Termorretráctil variado + pistola de calor',
+      'Crimpadora de conectores (bullets, JST, etc.)',
+      'Cables de extensión de servo y conectores de repuesto (JR, Futaba)'
+    ]},
+    { name: 'Banco de trabajo y sujeción', items: [
+      'Mesa de trabajo nivelada ("building board") con superficie perforada',
+      'Alfileres T-pins (armado de estructuras de balsa)',
+      'Prensas pequeñas tipo "spring clamps" y clamps de resorte variados',
+      'Building board de espuma o corcho',
+      'Soporte/caballete para fuselaje (cradle stand)',
+      'Banco de pruebas de motor fijo (test stand)'
+    ]},
+    { name: 'Acabado y pintura', items: [
+      'Aerógrafo + compresor pequeño',
+      'Masilla ligera (lightweight filler) para balsa',
+      'Sellador de poro (sanding sealer)',
+      'Cinta de enmascarar de precisión y film para vinil de corte'
+    ]},
+    { name: 'Herramientas generales de taller', items: [
+      'Set de destornilladores de precisión (Phillips y planos pequeños)',
+      'Set de llaves Allen métricas y en pulgadas',
+      'Alicates de punta fina, de corte y pelacables',
+      'Lupa con luz o lupa de banco (trabajo fino en radios/servos)',
+      'Aspiradora pequeña o soplador (limpieza de polvo de balsa)',
+      'Ventilación / extractor (vapores de CA, epóxico y solventes)',
+      'Caja organizadora con compartimentos (tornillería, herrajes, spinners, hardware de control)'
+    ]}
+  ],
+  caja: [
+    { name: 'Dentro de la caja Ubermann', items: [
+      'Arrancador',
+      'Baterías en su funda',
+      'Cargador de baterías',
+      'Placas conectoras de batería',
+      'Calentador de bujía',
+      'Chequeador de baterías',
+      'Probador de servos',
+      'Multímetro pequeño',
+      'Desengrasante (espuma)',
+      'Pegante CA + activador (cianoacrilato, de pie y tapados)',
+      'Trapo',
+      'Destornilladores planos / estrella',
+      'Allen métricos',
+      'Alicate de punta / corte',
+      'Llave de bujía',
+      'Llave para agujas de carburador',
+      'Cinta métrica / calibrador CG',
+      'Bujías de repuesto',
+      'Filtro de combustible de repuesto',
+      'Hélice de repuesto (protegida contra un costado)',
+      'Cuernos, brazos, EZ links de repuesto',
+      'Velcro, tiraps, cinta de servo',
+      'Cinta adhesiva reforzada',
+      'Bomba de combustible de respaldo (manual, compacta)'
+    ]},
+    { name: 'Fuera de la caja (independiente)', items: [
+      'Palos para soportar el avión',
+      'Combustible glow y/o gasolina, envases correctos',
+      'Bomba de combustible principal (eléctrica, con mangueras)',
+      'Radio Futaba T16SZ con su estuche',
+      'Modelo(s) a volar',
+      'Extintor pequeño',
+      'Botiquín básico',
+      'Guantes de nitrilo'
+    ]}
+  ]
+};
+
+let state = { taller: null, caja: null };
+let currentTab = 'taller';
+let idCounter = 1;
+let storageBroken = false;
+let saveTimer = null;
+
+function makeId(){ return 'i' + (idCounter++) + '-' + Math.random().toString(36).slice(2,7); }
+
+function buildFromDefaults(tabKey){
+  return DEFAULT_DATA[tabKey].map(cat => ({
+    id: makeId(),
+    name: cat.name,
+    open: true,
+    items: cat.items.map(text => ({ id: makeId(), text, checked: false }))
+  }));
+}
+
+function normalizeTab(list, tabKey){
+  if(!Array.isArray(list)) return buildFromDefaults(tabKey);
+  return list.map(cat => ({
+    id: cat && cat.id ? String(cat.id) : makeId(),
+    name: cat && cat.name ? String(cat.name) : 'Sin nombre',
+    open: !cat || cat.open !== false,
+    items: Array.isArray(cat && cat.items) ? cat.items.map(item => {
+      if(typeof item === 'string') return { id: makeId(), text: item, checked: false };
+      return {
+        id: item && item.id ? String(item.id) : makeId(),
+        text: item && item.text ? String(item.text) : '',
+        checked: !!(item && item.checked)
+      };
+    }).filter(item => item.text) : []
+  }));
+}
+
+function readLocal(key){
+  try{ return localStorage.getItem(key); }
+  catch(e){ return null; }
+}
+
+function writeLocal(key, value){
+  localStorage.setItem(key, value);
+}
+
+function loadAll(){
+  let payload = null;
+  const raw = readLocal(STORAGE_KEY);
+  if(raw){
+    try{ payload = JSON.parse(raw); }
+    catch(e){ payload = null; }
+  }
+
+  if(!payload){
+    payload = {};
+    for(const tab of ['taller', 'caja']){
+      const legacy = readLocal(LEGACY_KEY_PREFIX + tab);
+      if(!legacy) continue;
+      try{ payload[tab] = JSON.parse(legacy); }
+      catch(e){ /* ignore broken legacy key */ }
+    }
+  }
+
+  state.taller = payload && payload.taller ? normalizeTab(payload.taller, 'taller') : buildFromDefaults('taller');
+  state.caja = payload && payload.caja ? normalizeTab(payload.caja, 'caja') : buildFromDefaults('caja');
+  if(payload && (payload.currentTab === 'taller' || payload.currentTab === 'caja')){
+    currentTab = payload.currentTab;
+  }
+}
+
+function persistNow(){
+  const setStatus = document.getElementById('save-status');
+  const banner = document.getElementById('save-banner');
+  try{
+    writeLocal(STORAGE_KEY, JSON.stringify({
+      taller: state.taller,
+      caja: state.caja,
+      currentTab,
+      savedAt: new Date().toISOString()
+    }));
+    setStatus.textContent = 'guardado ✓';
+    setStatus.className = 'save-status ok';
+    if(storageBroken){
+      storageBroken = false;
+      banner.style.display = 'none';
+      banner.innerHTML = '';
+    }
+    return true;
+  }catch(e){
+    console.error('No se pudo guardar', e);
+    setStatus.textContent = 'no se pudo guardar';
+    setStatus.className = 'save-status err';
+    storageBroken = true;
+    banner.style.display = 'block';
+    banner.innerHTML = '<strong>El navegador no pudo guardar.</strong> Tus cambios se ven ahora, pero pueden perderse al recargar. Usa “↓ exportar copia” abajo y vuelve a importarla la próxima vez.';
+    return false;
+  }
+}
+
+function save(){
+  const setStatus = document.getElementById('save-status');
+  setStatus.textContent = 'guardando…';
+  setStatus.className = 'save-status';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persistNow, 60);
+}
+
+function checkSvg(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+}
+
+function render(){
+  const container = document.getElementById('categories-container');
+  const cats = state[currentTab];
+  if(!cats || cats.length === 0){
+    container.innerHTML = '<div class="load-msg">Sin categorías. Agrega una abajo.</div>';
+  } else {
+    container.innerHTML = cats.map(cat => {
+      const total = cat.items.length;
+      const done = cat.items.filter(i => i.checked).length;
+      const itemsHtml = cat.items.map(item => `
+        <div class="item ${item.checked ? 'checked' : ''}" data-item-id="${item.id}">
+          <div class="checkbox ${item.checked ? 'checked' : ''}" data-action="toggle" data-item-id="${item.id}">${checkSvg()}</div>
+          <div class="item-text" data-action="edit-item" data-item-id="${item.id}">${escapeHtml(item.text)}</div>
+          <div class="item-actions">
+            <button type="button" class="item-edit" data-action="edit-item" data-item-id="${item.id}" title="Editar">✎</button>
+            <button type="button" class="item-del" data-action="del-item" data-item-id="${item.id}" title="Eliminar">✕</button>
+          </div>
+        </div>
+      `).join('');
+      return `
+        <div class="category ${cat.open ? 'open' : ''}" data-cat-id="${cat.id}">
+          <div class="category-head" data-action="toggle-cat" data-cat-id="${cat.id}">
+            <div class="category-title">
+              <span class="chevron">▸</span>
+              <h2 data-action="edit-cat-title" data-cat-id="${cat.id}">${escapeHtml(cat.name)}</h2>
+            </div>
+            <div class="cat-actions">
+              <span class="category-sub">${done}/${total}</span>
+              <button type="button" class="category-edit" data-action="edit-cat" data-cat-id="${cat.id}" title="Editar categoría">✎</button>
+              <button type="button" class="category-del" data-action="del-cat" data-cat-id="${cat.id}" title="Eliminar categoría">✕</button>
+            </div>
+          </div>
+          <div class="category-body">
+            ${itemsHtml}
+            <div class="add-row">
+              <input type="text" placeholder="Agregar elemento…" autocomplete="off" data-action="new-item-input" data-cat-id="${cat.id}">
+              <button type="button" data-action="add-item" data-cat-id="${cat.id}">agregar</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  updateGauge();
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function updateGauge(){
+  const cats = state[currentTab] || [];
+  let total = 0, done = 0;
+  cats.forEach(c => { total += c.items.length; done += c.items.filter(i=>i.checked).length; });
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('gauge-label').textContent = currentTab === 'taller' ? 'Taller' : 'Caja de vuelo';
+  document.getElementById('gauge-fill').style.width = pct + '%';
+  document.getElementById('gauge-count').textContent = `${done}/${total}`;
+}
+
+function findItem(itemId){
+  for(const cat of state[currentTab]){
+    const item = cat.items.find(i => i.id === itemId);
+    if(item) return { cat, item };
+  }
+  return null;
+}
+
+function updateCategoryCount(cat){
+  const el = document.querySelector(`.category[data-cat-id="${cat.id}"] .category-sub`);
+  if(el) el.textContent = cat.items.filter(i => i.checked).length + '/' + cat.items.length;
+}
+
+function toggleItem(itemId){
+  const found = findItem(itemId);
+  if(!found) return;
+  found.item.checked = !found.item.checked;
+  const itemEl = document.querySelector(`.item[data-item-id="${itemId}"]`);
+  if(itemEl){
+    itemEl.classList.toggle('checked', found.item.checked);
+    const box = itemEl.querySelector('.checkbox');
+    if(box) box.classList.toggle('checked', found.item.checked);
+  }
+  updateCategoryCount(found.cat);
+  updateGauge();
+  save();
+}
+
+function delItem(itemId){
+  const found = findItem(itemId);
+  if(!found) return;
+  if(!confirm('¿Eliminar “' + found.item.text + '”?')) return;
+  found.cat.items = found.cat.items.filter(i => i.id !== itemId);
+  render();
+  save();
+}
+
+function addItem(catId, text){
+  text = (text || '').trim();
+  if(!text) return;
+  const cat = state[currentTab].find(c => c.id === catId);
+  if(!cat) return;
+  cat.items.push({ id: makeId(), text, checked: false });
+  render();
+  const input = document.querySelector(`input[data-action="new-item-input"][data-cat-id="${catId}"]`);
+  if(input) input.focus();
+  save();
+}
+
+function toggleCat(catId){
+  const cat = state[currentTab].find(c => c.id === catId);
+  if(!cat) return;
+  cat.open = !cat.open;
+  const el = document.querySelector(`.category[data-cat-id="${catId}"]`);
+  if(el) el.classList.toggle('open', cat.open);
+  save();
+}
+
+function delCat(catId){
+  const cats = state[currentTab];
+  const cat = cats.find(c => c.id === catId);
+  if(!cat) return;
+  const extra = cat.items.length ? ' y sus ' + cat.items.length + ' elementos' : '';
+  if(!confirm('¿Eliminar la categoría “' + cat.name + '”' + extra + '?')) return;
+  state[currentTab] = cats.filter(c => c.id !== catId);
+  render();
+  save();
+}
+
+function addCategory(name){
+  name = (name || '').trim();
+  if(!name) return;
+  state[currentTab].push({ id: makeId(), name, open: true, items: [] });
+  render();
+  save();
+}
+
+function commitOpenEdits(){
+  document.querySelectorAll('input[data-action="edit-item-input"]').forEach(input => commitEditItem(input, false));
+  document.querySelectorAll('input[data-action="edit-cat-input"]').forEach(input => commitEditCat(input, false));
+}
+
+function startEditItem(itemId){
+  const found = findItem(itemId);
+  if(!found) return;
+  const itemEl = document.querySelector(`.item[data-item-id="${itemId}"]`);
+  if(!itemEl) return;
+  const current = itemEl.querySelector('input[data-action="edit-item-input"]');
+  if(current){
+    current.focus();
+    current.select();
+    return;
+  }
+  commitOpenEdits();
+  const textEl = itemEl.querySelector('.item-text');
+  if(!textEl) return;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'item-text-input';
+  input.value = found.item.text;
+  input.autocomplete = 'off';
+  input.dataset.action = 'edit-item-input';
+  input.dataset.itemId = itemId;
+  textEl.replaceWith(input);
+  input.focus();
+  input.select();
+}
+
+function commitEditItem(input, cancel){
+  if(!input || input.dataset.committed === '1') return;
+  input.dataset.committed = '1';
+  const itemId = input.dataset.itemId;
+  const found = findItem(itemId);
+  if(!found){
+    input.remove();
+    return;
+  }
+  const next = (input.value || '').trim();
+  if(!cancel && next && next !== found.item.text){
+    found.item.text = next;
+    save();
+  }
+  const div = document.createElement('div');
+  div.className = 'item-text';
+  div.dataset.action = 'edit-item';
+  div.dataset.itemId = itemId;
+  div.textContent = found.item.text;
+  input.replaceWith(div);
+}
+
+function startEditCat(catId){
+  const cat = state[currentTab].find(c => c.id === catId);
+  if(!cat) return;
+  const catEl = document.querySelector(`.category[data-cat-id="${catId}"]`);
+  if(!catEl) return;
+  const current = catEl.querySelector('input[data-action="edit-cat-input"]');
+  if(current){
+    current.focus();
+    current.select();
+    return;
+  }
+  commitOpenEdits();
+  const titleEl = catEl.querySelector('h2');
+  if(!titleEl) return;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'cat-name-input';
+  input.value = cat.name;
+  input.autocomplete = 'off';
+  input.dataset.action = 'edit-cat-input';
+  input.dataset.catId = catId;
+  titleEl.replaceWith(input);
+  input.focus();
+  input.select();
+}
+
+function commitEditCat(input, cancel){
+  if(!input || input.dataset.committed === '1') return;
+  input.dataset.committed = '1';
+  const catId = input.dataset.catId;
+  const cat = state[currentTab].find(c => c.id === catId);
+  if(!cat){
+    input.remove();
+    return;
+  }
+  const next = (input.value || '').trim();
+  if(!cancel && next && next !== cat.name){
+    cat.name = next;
+    save();
+  }
+  const h2 = document.createElement('h2');
+  h2.dataset.action = 'edit-cat-title';
+  h2.dataset.catId = catId;
+  h2.textContent = cat.name;
+  input.replaceWith(h2);
+}
+
+function resetTab(){
+  const label = currentTab === 'taller' ? 'Taller' : 'Caja de vuelo';
+  if(!confirm('Esto restaura la lista original de “' + label + '” y borra tus cambios en esta pestaña. ¿Continuar?')) return;
+  state[currentTab] = buildFromDefaults(currentTab);
+  render();
+  save();
+}
+
+function setTab(tabKey){
+  currentTab = tabKey;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tabKey);
+  });
+  render();
+  save();
+}
+
+document.getElementById('categories-container').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const action = el.dataset.action;
+  if(action === 'edit-item-input' || action === 'edit-cat-input') return;
+  if(action === 'toggle') toggleItem(el.dataset.itemId);
+  else if(action === 'edit-item') startEditItem(el.dataset.itemId);
+  else if(action === 'del-item') delItem(el.dataset.itemId);
+  else if(action === 'edit-cat' || action === 'edit-cat-title'){
+    e.stopPropagation();
+    startEditCat(el.dataset.catId);
+  }
+  else if(action === 'toggle-cat'){
+    if(e.target.closest('[data-action="del-cat"], [data-action="edit-cat"], [data-action="edit-cat-title"], [data-action="edit-cat-input"]')) return;
+    toggleCat(el.dataset.catId);
+  }
+  else if(action === 'del-cat'){
+    e.stopPropagation();
+    delCat(el.dataset.catId);
+  }
+  else if(action === 'add-item'){
+    const input = document.querySelector(`input[data-action="new-item-input"][data-cat-id="${el.dataset.catId}"]`);
+    if(input){
+      addItem(el.dataset.catId, input.value);
+    }
+  }
+});
+
+document.getElementById('categories-container').addEventListener('keydown', (e) => {
+  const action = e.target.dataset.action;
+  if(e.key === 'Enter' && action === 'new-item-input'){
+    addItem(e.target.dataset.catId, e.target.value);
+  } else if(action === 'edit-item-input'){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      commitEditItem(e.target, false);
+    } else if(e.key === 'Escape'){
+      e.preventDefault();
+      commitEditItem(e.target, true);
+    }
+  } else if(action === 'edit-cat-input'){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      commitEditCat(e.target, false);
+    } else if(e.key === 'Escape'){
+      e.preventDefault();
+      commitEditCat(e.target, true);
+    }
+  }
+});
+
+document.getElementById('categories-container').addEventListener('focusout', (e) => {
+  const action = e.target.dataset && e.target.dataset.action;
+  if(action === 'edit-item-input') commitEditItem(e.target, false);
+  else if(action === 'edit-cat-input') commitEditCat(e.target, false);
+});
+
+document.getElementById('add-category-btn').addEventListener('click', () => {
+  const input = document.getElementById('new-category-input');
+  addCategory(input.value);
+  input.value = '';
+  input.focus();
+});
+document.getElementById('new-category-input').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    addCategory(e.target.value);
+    e.target.value = '';
+  }
+});
+
+document.getElementById('reset-btn').addEventListener('click', resetTab);
+
+document.getElementById('export-btn').addEventListener('click', () => {
+  persistNow();
+  const payload = { taller: state.taller, caja: state.caja, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'checklist-aeromodelismo-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('import-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const payload = JSON.parse(reader.result);
+      if(payload.taller) state.taller = normalizeTab(payload.taller, 'taller');
+      if(payload.caja) state.caja = normalizeTab(payload.caja, 'caja');
+      render();
+      persistNow();
+      alert('Checklist importado correctamente.');
+    }catch(err){
+      alert('No se pudo leer ese archivo. Asegúrate de que sea un .json exportado desde este mismo checklist.');
+    }
+  };
+  reader.onerror = () => {
+    alert('No se pudo leer ese archivo.');
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => setTab(btn.dataset.tab));
+});
+
+window.addEventListener('storage', (e) => {
+  if(e.key !== STORAGE_KEY || !e.newValue) return;
+  try{
+    const payload = JSON.parse(e.newValue);
+    if(payload.taller) state.taller = normalizeTab(payload.taller, 'taller');
+    if(payload.caja) state.caja = normalizeTab(payload.caja, 'caja');
+    render();
+  }catch(err){ /* ignore */ }
+});
+
+window.addEventListener('beforeunload', () => {
+  if(saveTimer) persistNow();
+});
+
+(function init(){
+  loadAll();
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === currentTab);
+  });
+  render();
+  persistNow();
+})();
+</script>
+</body>
+</html>
